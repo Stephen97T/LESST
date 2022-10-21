@@ -1,3 +1,6 @@
+import os
+
+os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
 import pandas as pd
 
 from copy import deepcopy

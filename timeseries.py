@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # coding: utf-8
+import os
 
+os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
 from typing import List
+
 
 import pandas as pd
 import rpy2.robjects as robjects
