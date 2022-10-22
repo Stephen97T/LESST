@@ -1,2 +1,2 @@
 # LESST
-Learning with Subset Stacking for Timeseries data
+Learning with Subset Stacking for Timeseries
