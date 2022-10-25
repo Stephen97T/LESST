@@ -47,3 +47,19 @@ def prepare_m4tsfeatures(
         with localconverter(ro.default_converter + pandas2ri.converter):
             features = ro.conversion.rpy2py(features)
         features.to_csv(f"{outputfolder}/{filename}-{dset.lower()}.csv")
+
+
+def read_m4(
+    dataset, train_test="train", datapath="C:/thesis/data/m4/processed/"
+):
+    df = pd.read_csv(
+        f"{datapath}/{train_test}/ytrain-{dataset}.csv", index_col=0
+    )
+    return df
+
+
+def read_tsfeatures(dataset, datapath="C:/thesis/data/m4/processed/"):
+    df = pd.read_csv(
+        f"{datapath}/tsfeatures/features_train_val-{dataset}.csv", index_col=0
+    )
+    return df
