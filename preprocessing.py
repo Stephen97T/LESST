@@ -49,11 +49,19 @@ def prepare_m4tsfeatures(
         features.to_csv(f"{outputfolder}/{filename}-{dset.lower()}.csv")
 
 
-def read_m4(
+def read_m4_df(
     dataset, train_test="train", datapath="C:/thesis/data/m4/processed/"
 ):
     df = pd.read_csv(
         f"{datapath}/{train_test}/ytrain-{dataset}.csv", index_col=0
+    )
+    return df
+
+
+def read_m4_series(dataset, train_test="Train", datapath="C:/thesis/data/m4"):
+    df = pd.read_csv(
+        f"{datapath}/{train_test}/{dataset}-{train_test.lower()}.csv",
+        index_col=0,
     )
     return df
 
