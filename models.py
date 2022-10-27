@@ -11,6 +11,39 @@ from tsforecast import (
     RandomWalk,
     ThetaF,
 )
+import tensorflow as tf
+from keras import Sequential
+from keras.layers import Embedding, LSTM, Dense
+
+
+class RNN:
+    def __init__(self, dim_input, dim_output):
+        self.model = self.initiate_model(dim_input, dim_output)
+
+    def initiate_model(self, dim_input, dim_output):
+        model = Sequential()
+        # Embedding layer
+        model.add(
+            Embedding(
+                input_dim=dim_input,
+                output_dim=dim_output,
+            )
+        )
+        model.add(
+            LSTM(
+                64, return_sequences=False, dropout=0.1, recurrent_dropout=0.1
+            )
+        )
+
+        # Fully connected layer
+        model.add(Dense(64, activation="relu"))
+
+        # Dropout for regularization
+        # model.add(Dropout(0.5))
+
+        # Output layer
+        model.add(Dense(dim_input, activation="sigmoid"))
+        return model
 
 
 class LocalModel:
