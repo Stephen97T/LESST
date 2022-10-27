@@ -1,4 +1,5 @@
 from sklearn.cluster import KMeans
+from tslearn.clustering import TimeSeriesKMeans
 from timeseries import tsfeatures_r
 from sklearn import preprocessing
 import pandas as pd
@@ -42,10 +43,25 @@ class FeatureClustering:
             tsfeatures.drop("unique_id", axis=1),
             tsfeatures["unique_id"],
         )
+        tsfeatures = tsfeatures.dropna(axis=1)
         tsfeatures = preprocessing.normalize(tsfeatures, axis=0)
         return tsfeatures, ids
 
 
 class DTWClustering:
-    def __init__(self):
-        pass
+    def __init__(self, n_clusters):
+        self.n_clusters = n_clusters
+        self.kmeans = ""
+        self.clusters = ""
+        self.midpoints = ""
+        self.idmapping = {}
+
+    def cluster_dtw(self, timeseries):
+        dtwcluster = TimeSeriesKMeans(
+            n_clusters=self.n_clusters,
+            metric="dtw",
+            max_iter=10,
+            random_state=1,
+        )
+        dtwcluster.fit(timeseries)
+        return dtwcluster

@@ -1,0 +1,6 @@
+pandas
+numpy
+sklearn
+tslearn
+rpy2
+tsfeatures

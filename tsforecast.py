@@ -2,7 +2,6 @@ import os
 
 os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
 import pandas as pd
-
 from copy import deepcopy
 from sklearn.base import BaseEstimator, RegressorMixin
 from sklearn.utils.validation import check_is_fitted
@@ -10,6 +9,7 @@ from rpy2.robjects.packages import importr
 from rpy2.robjects import pandas2ri, numpy2ri
 from rpy2.robjects.vectors import IntVector, FloatVector
 import rpy2.robjects as robjects
+
 
 forecast = importr("forecast")
 
@@ -24,7 +24,17 @@ def forecast_object_to_dict(forecast_object):
 
 def get_forecast(fitted_model, h):
     """Calculate forecast from a fitted model."""
-    y_hat = forecast.forecast(fitted_model, h=h)
+    # y_hat = forecast.forecast(fitted_model, h=h)
+    rstring = """
+     f <- function(fitted_model, h, ...){
+         suppressMessages(library(forecast))
+         y_hat <- forecast(fitted_model, h)
+     }
+    """
+    robjects.r(rstring)
+    r_f = robjects.globalenv["f"]
+    y_hat = r_f(fitted_model, h)
+    # rfunc = robjects.r(rstring)
     y_hat = forecast_object_to_dict(y_hat)
     y_hat = y_hat["mean"]
 
