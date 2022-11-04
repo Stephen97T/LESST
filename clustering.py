@@ -1,5 +1,6 @@
 from sklearn.cluster import KMeans
 from tslearn.clustering import TimeSeriesKMeans
+from scipy.spatial import KDTree
 from timeseries import tsfeatures_r
 from sklearn import preprocessing
 import pandas as pd
@@ -10,7 +11,10 @@ class FeatureClustering:
         self.n_clusters = n_clusters
         self.kmeans = ""
         self.clusters = ""
+        self.cluster_distances = ""
+        self.idcluster_distance = ""
         self.midpoints = ""
+        self.tree = ""
         self.idmapping = {}
 
     def cluster_kmeans(self, timeseries, n_clusters):
@@ -31,6 +35,12 @@ class FeatureClustering:
         )
         self.clusters = self.kmeans.labels_
         self.midpoints = self.kmeans.cluster_centers_
+        self.tree = KDTree(self.midpoints)
+        cluster_distances = self.tree.query(tsfeatures, k=self.n_clusters)
+        self.idcluster_distance = cluster_distances[1]
+        self.cluster_distances = (
+            cluster_distances[0].T / cluster_distances[0].sum(axis=1)
+        ).T
         idmapping = {}
         for index in range(0, len(unique_ids)):
             idmapping.update({f"{unique_ids[index+1]}": self.clusters[index]})

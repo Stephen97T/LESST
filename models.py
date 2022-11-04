@@ -12,38 +12,39 @@ from tsforecast import (
     ThetaF,
 )
 import tensorflow as tf
-from keras import Sequential
-from keras.layers import Embedding, LSTM, Dense
+from keras import Sequential, losses
+from keras.layers import Embedding, LSTM, Dense, Dropout
 
 
 class RNN:
     def __init__(self, dim_input, dim_output):
         self.model = self.initiate_model(dim_input, dim_output)
 
-    def initiate_model(self, dim_input, dim_output):
+    def initiate_model(self, dim_input, dim_output, n_obs):
         model = Sequential()
-        # Embedding layer
-        model.add(
-            Embedding(
-                input_dim=dim_input,
-                output_dim=dim_output,
-            )
-        )
-        model.add(
-            LSTM(
-                64, return_sequences=False, dropout=0.1, recurrent_dropout=0.1
-            )
-        )
+        model.add(LSTM(32, input_shape=(n_obs, dim_input)))
+        model.add(Dense(48, activation="relu"))
+        model.add(Dense(dim_output, activation="sigmoid"))
+        model.compile(optimizer="adam", loss="mean_squared_error")
 
         # Fully connected layer
-        model.add(Dense(64, activation="relu"))
-
+        # model.add(Dense(64, activation="relu"))
+        # model.add(Dense(dim_output, activation="sigmoid"))
         # Dropout for regularization
         # model.add(Dropout(0.5))
-
-        # Output layer
-        model.add(Dense(dim_input, activation="sigmoid"))
+        # model.compile(optimizer="adam", loss=losses.MeanAbsoluteError())
         return model
+
+    def split_train_val_test():
+        pass
+
+    def reshape_inputdata(data, n_observations, n_features, n_samples=1):
+        # n_observations = x.shape[0]
+        # n_features = x.shape[1]
+        return data.reshape((n_samples, n_observations, n_features))
+
+    def reshape_outputdata(data, n_samples=1):
+        return data.reshape((n_samples, len(data)))
 
 
 class LocalModel:
