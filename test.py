@@ -16,8 +16,8 @@ distances = clusters.cluster_distances
 cluster1 = timeseries[timeseries.cluster == 1]
 predictions = []
 validation = []
-for i in range(0, 100):
-    oneserie = cluster1[cluster1.unique_id == cluster1.unique_id[i]]
+for i in range(0, 1000):
+    oneserie = cluster1[cluster1.unique_id == cluster1.unique_id.unique()[i]]
     y = np.array(oneserie.y)[:-10]
     yval = np.array(oneserie.y)[-10:]
     validation.append(yval)

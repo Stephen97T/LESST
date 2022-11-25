@@ -71,3 +71,15 @@ def read_tsfeatures(dataset, datapath="C:/thesis/data/m4/processed/"):
         f"{datapath}/tsfeatures/features_train_val-{dataset}.csv", index_col=0
     )
     return df
+
+
+def split_train_val_test(data, testsize):
+    ytrain = []
+    yval = []
+    ytest = []
+    for ts in data.unique_id.unique():
+        y = np.array(data[data.unique_id == ts].y)
+        ytrain.append(y[: -2 * testsize])
+        yval.append(y[-2 * testsize : -testsize])
+        ytest.append(y[-testsize:])
+    return ytrain, yval, ytest
