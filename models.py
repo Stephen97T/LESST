@@ -56,14 +56,19 @@ class RNN:
 
 
 class LocalModel:
-    def __init__(self, model):
-        self.model = model
+    def __init__(self):
+        self.models = {}
 
-    def fit(self, x, y):
-        self.model.fit(x, y)
+    def fit(self, X, Y):
+        for cluster in X.keys():
+            model = MultiXgboost()
+            x = X[cluster]
+            y = Y[cluster]
+            model.fit(x, y)
+            self.models.update({cluster: model})
 
-    def predict(self, y):
-        pred = self.model.predict(y)
+    def predict(self, y, cluster):
+        pred = self.models[cluster].predict(y)
         return pred
 
 

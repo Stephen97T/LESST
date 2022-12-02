@@ -39,11 +39,14 @@ class FeatureClustering:
         cluster_distances = self.tree.query(tsfeatures, k=self.n_clusters)
         self.idcluster_distance = cluster_distances[1]
         self.cluster_distances = (
-            cluster_distances[0].T / cluster_distances[0].sum(axis=1)
+            cluster_distances[0].sum(axis=1) / cluster_distances[0].T
+        )
+        self.cluster_distances = (
+            self.cluster_distances / self.cluster_distances.sum(axis=0)
         ).T
         idmapping = {}
         for index in range(0, len(unique_ids)):
-            idmapping.update({f"{unique_ids[index+1]}": self.clusters[index]})
+            idmapping.update({f"{unique_ids[index]}": self.clusters[index]})
         timeseries["cluster"] = timeseries.unique_id.map(idmapping)
         self.idmapping = idmapping
         return timeseries

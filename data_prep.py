@@ -16,6 +16,7 @@ def shift(data, timesteps):
 
 
 def prepare_train(ytrain, timesteps):
+    # ytrain is the training data per cluster
     X = []
     Y = []
     for data in ytrain:
@@ -27,8 +28,8 @@ def prepare_train(ytrain, timesteps):
     return X, Y
 
 
-def last_values(ytrain):
+def last_values(ytrain, timesteps):
     last = []
     for data in ytrain:
-        last.append(data[-1])
+        last.append([data[-1]] * timesteps)
     return last
