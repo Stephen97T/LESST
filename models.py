@@ -15,9 +15,10 @@ import tensorflow as tf
 from keras import Sequential, losses
 from keras.optimizers import Adam
 from keras.layers import Embedding, LSTM, Dense, Dropout
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from xgboost import XGBRegressor
 from sklearn.multioutput import MultiOutputRegressor
+from data_prep import last_values
 
 
 class RNN:
@@ -72,15 +73,82 @@ class LocalModel:
         return pred
 
 
+class GlobalModel:
+    def __init__(
+        self,
+        localmodel,
+        testsize,
+        clusterids,
+        localweights,
+        model=RandomForestRegressor(),
+    ):
+        self.model = model
+        self.testsize = testsize
+        self.localmodel = localmodel
+        self.clusterids = clusterids
+        self.local_weights = localweights
+
+    def localpredictions(self, x):
+        x = np.array(last_values(x, timesteps=self.testsize))
+
+        preds = {}
+        for i in range(0, self.clusterids.shape[1]):
+            # predict for all series the predictions for each local model
+            preds.update({i: self.localmodel.predict(x, cluster=i)})
+        return preds
+
+    def weightedpredictions(self, preds):
+        totalpred = []
+        for i in range(0, self.clusterids.shape[0]):
+            ypred = []
+            for j in range(0, self.clusterids.shape[1]):
+                # multiply local predictions with the cluster weights
+                ypred.append(
+                    self.local_weights[i, j] * preds[self.clusterids[i, j]][i]
+                )
+            # save all weighted predictions
+            totalpred.append(np.array(ypred).T)
+        totalpred = np.array(totalpred)
+        return totalpred
+
+    def fit(self, x, y):
+        preds = self.localpredictions(x)
+        totalpred = self.weightedpredictions(preds)
+        # reshape data for training the global model
+        x = totalpred.reshape(
+            totalpred.shape[0] * totalpred.shape[1], totalpred.shape[2]
+        )
+        y = np.array(y).reshape(-1, 1)
+        self.model.fit(x, y)
+
+    def predict(self, values):
+        x = np.array(last_values(values, timesteps=self.testsize))
+
+        preds = self.localpredictions(x)
+        totalpred = self.weightedpredictions(preds)
+
+        x = totalpred.reshape(
+            totalpred.shape[0] * totalpred.shape[1], totalpred.shape[2]
+        )
+        return self.model.predict(x)
+
+
+class WeightedSum:
+    def __init__(self):
+        pass
+
+    def fit(self, x, y):
+        self.x = x
+        self.y = y
+
+    def predict(self, values):
+        return self.x.sum(axis=1)
+
+
 class MultiXgboost(MultiOutputRegressor):
     def __init__(self):
         self.estimator = XGBRegressor()
         self.n_jobs = None
-
-
-class GradientBoost:
-    def __init__(self):
-        pass
 
     """
     def __init__(self, modeltype, freq):

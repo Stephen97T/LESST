@@ -4,6 +4,7 @@ from scipy.spatial import KDTree
 from timeseries import tsfeatures_r
 from sklearn import preprocessing
 import pandas as pd
+import numpy as np
 
 
 class FeatureClustering:

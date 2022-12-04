@@ -1,6 +1,18 @@
 import numpy as np
 
 
+def split_train_val_test(data, testsize):
+    ytrain = []
+    yval = []
+    ytest = []
+    for ts in data.unique_id.unique():
+        y = np.array(data[data.unique_id == ts].y)
+        ytrain.append(y[: -2 * testsize])
+        yval.append(y[-2 * testsize : -testsize])
+        ytest.append(y[-testsize:])
+    return ytrain, yval, ytest
+
+
 def shift(data, timesteps):
     ones = np.ones(timesteps).reshape(-1, 1).T
     x = np.dot(data[:-timesteps].reshape(-1, 1), ones)
@@ -33,3 +45,15 @@ def last_values(ytrain, timesteps):
     for data in ytrain:
         last.append([data[-1]] * timesteps)
     return last
+
+
+def prepare_inputoutput(df, testsize):
+    inputs = {}
+    outputs = {}
+    for i in df.cluster.unique():
+        data = df[df.cluster == i]
+        train, val, test = split_train_val_test(data, testsize)
+        X, Y = prepare_train(ytrain=train, timesteps=testsize)
+        inputs.update({i: X})
+        outputs.update({i: Y})
+    return inputs, outputs
