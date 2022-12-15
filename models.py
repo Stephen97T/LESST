@@ -16,6 +16,7 @@ from keras import Sequential, losses
 from keras.optimizers import Adam
 from keras.layers import Embedding, LSTM, Dense, Dropout
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
+from sklearn.linear_model import LinearRegression
 from xgboost import XGBRegressor
 from sklearn.multioutput import MultiOutputRegressor
 from data_prep import last_values
@@ -147,7 +148,7 @@ class WeightedSum:
 
 class MultiXgboost(MultiOutputRegressor):
     def __init__(self):
-        self.estimator = XGBRegressor()
+        self.estimator = XGBRegressor(tree_method="hist")
         self.n_jobs = None
 
     """

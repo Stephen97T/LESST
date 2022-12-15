@@ -14,14 +14,20 @@ np.random.seed(1)
 class LESST:
     def __init__(self, dataset, n_clusters):
         self.n_clusters = n_clusters
-        self.df = read_m4_df("monthly")
-        self.feats = read_tsfeatures("monthly")
+        self.df = read_m4_df(dataset)
+        self.feats = read_tsfeatures(dataset).reset_index(drop=True)
+        self.df = self.df[
+            self.df.unique_id.isin(self.df.unique_id.unique()[0:1000])
+        ].reset_index(drop=True)
+        self.feats = self.feats.loc[0:999].reset_index(drop=True)
+        """
         self.df = self.df[
             self.df.unique_id.isin(["M1", "M2", "M3", "M4"])
         ].reset_index(drop=True)
         self.feats = self.feats[
             self.feats.unique_id.isin(["M1", "M2", "M3", "M4"])
         ].reset_index(drop=True)
+        """
 
     def fit(self, prediction_steps):
         clust = FeatureClustering(self.n_clusters)
