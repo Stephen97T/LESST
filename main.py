@@ -21,7 +21,7 @@ less.fit(
 )
 
 predictions = less.predict()
-predictions = less.reshape(1000, 12)
+predictions = predictions.reshape(1000, 12)
 
 train = less.train
 val = less.val
