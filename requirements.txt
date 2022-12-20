@@ -4,3 +4,5 @@ sklearn
 tslearn
 rpy2
 tsfeatures
+xgboost
+lightgbm
