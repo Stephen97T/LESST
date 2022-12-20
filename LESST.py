@@ -66,7 +66,7 @@ class LESST:
         print(f"total running time {time()-t} sec")
 
     def predict(self):
-        predictions = self.Gmodel3.predict(self.val)
+        predictions = self.Gmodel.predict(self.val)
         return predictions
 
 

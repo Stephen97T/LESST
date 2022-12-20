@@ -6,7 +6,7 @@ Created on Fri Oct  7 13:43:01 2022
 """
 import numpy as np
 import pandas as pd
-from tsforecast import SeasonalNaive
+from tsforecast import SeasonalNaive, ThetaF
 
 
 class PerformanceMeasures:
@@ -45,4 +45,23 @@ class PerformanceMeasures:
         model_smape = self.sMAPE(real, predictions)
         model_mase = self.MASE(real, predictions, train)
         owa = (model_smape / naive_smape + model_mase / naive_mase) / 2
+        return owa
+
+
+class BenchmarkModel:
+    def __init__(self, model):
+        self.model = model
+
+    def fit(self, train):
+        self.model.fit(train)
+
+    def predict(self, horizon):
+        predictions = self.model.predict(horizon)
+        return predictions
+
+    def performance(self, real, train, horizon, freq):
+        self.fit(train)
+        predictions = self.predict(horizon)
+        measure = PerformanceMeasures(freq)
+        owa = measure.OWA(real, predictions, train)
         return owa
