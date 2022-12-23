@@ -40,7 +40,10 @@ def prepare_m4tsfeatures(
     outputfolder="C:/thesis/data/m4/processed/tsfeatures",
     datapath="C:/thesis/data/m4/processed/train",
 ):
-    datasets = ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
+    datasets = [
+        "Quarterly",
+        "Yearly",
+    ]  # ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
     for dset in datasets:
         y = pd.read_csv(f"{datapath}/ytrain-{dset.lower()}.csv", index_col=0)
         features = tsfeatures_r(y, freq=1)

@@ -1,4 +1,4 @@
-from preprocessing import read_tsfeatures, read_m4_df
+from preprocessing import read_tsfeatures, read_m4_df, read_m4_series
 from models import LocalModel, GlobalModel
 from data_prep import split_train_val_test, prepare_inputoutput
 from clustering import FeatureClustering
@@ -12,12 +12,13 @@ np.random.seed(1)
 class LESST:
     def __init__(self, dataset, n_clusters):
         self.n_clusters = n_clusters
-        self.df = read_m4_df(dataset)
+        # self.df = read_m4_df(dataset)
         self.feats = read_tsfeatures(dataset).reset_index(drop=True)
-        self.df = self.df[
-            self.df.unique_id.isin(self.df.unique_id.unique()[0:1000])
-        ].reset_index(drop=True)
-        self.feats = self.feats.loc[0:999].reset_index(drop=True)
+        self.df = read_m4_series(dataset)
+        # self.df = self.df[
+        #    self.df.unique_id.isin(self.df.unique_id.unique()[0:1000])
+        # ].reset_index(drop=True)
+        # self.feats = self.feats.loc[0:999].reset_index(drop=True)
         """
         self.df = self.df[
             self.df.unique_id.isin(["M1", "M2", "M3", "M4"])
