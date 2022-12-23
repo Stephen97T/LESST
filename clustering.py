@@ -48,7 +48,7 @@ class FeatureClustering:
         idmapping = {}
         for index in range(0, len(unique_ids)):
             idmapping.update({f"{unique_ids[index]}": self.clusters[index]})
-        timeseries["cluster"] = timeseries.unique_id.map(idmapping)
+        timeseries["cluster"] = timeseries.index.map(idmapping)
         self.idmapping = idmapping
         return timeseries
 

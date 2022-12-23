@@ -22,10 +22,10 @@ huber = HuberRegressor()
 gradient = GradientBoostingRegressor()
 
 
-dataset = "monthly"
+dataset = "yearly"
 n_clusters = 60
-horizon = 12
-frequency = 12
+horizon = 3
+frequency = 1
 localmodel = ols
 globalmodel = huber
 
@@ -36,7 +36,7 @@ less.fit(
 
 predictions = less.predict()
 leni = len(predictions) / horizon
-predictions = predictions.reshape(leni, 12)
+predictions = predictions.reshape(int(leni), horizon)
 
 train = less.train
 val = less.val
