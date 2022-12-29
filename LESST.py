@@ -10,11 +10,12 @@ np.random.seed(1)
 
 
 class LESST:
-    def __init__(self, dataset, n_clusters):
+    def __init__(self, dataset, n_clusters, freq):
         self.n_clusters = n_clusters
         # self.df = read_m4_df(dataset)
         self.feats = read_tsfeatures(dataset).reset_index(drop=True)
         self.df = read_m4_series(dataset)
+        self.freq = freq
         # self.df = self.df[
         #    self.df.unique_id.isin(self.df.unique_id.unique()[0:1000])
         # ].reset_index(drop=True)
@@ -34,6 +35,7 @@ class LESST:
         localmodel=XGBRegressor(tree_method="gpu_hist"),
         globalmodel=XGBRegressor(tree_method="gpu_hist"),
     ):
+        self.steps = prediction_steps
         t = time()
         clust = FeatureClustering(self.n_clusters)
         clust.cluster_features(self.feats, self.df)
@@ -42,7 +44,7 @@ class LESST:
         print(f"clustering step took {time()-t} sec")
         tt = time()
         testsize = prediction_steps
-        inputs, outputs = prepare_inputoutput(self.df, testsize)
+        inputs, outputs = prepare_inputoutput(self.df, testsize, self.freq)
         print(f"local model dataprep took {time()-tt} sec")
         tt = time()
         self.LocalM = LocalModel(modeltype=localmodel)
@@ -50,8 +52,8 @@ class LESST:
         print(f"local model step took {time()-tt} sec")
 
         tt = time()
-        self.train, self.val, self.test = split_train_val_test(
-            self.df, testsize
+        self.train, self.val, self.test, self.seas = split_train_val_test(
+            self.df, testsize, self.freq
         )
         print(f"datasplit part took {time()-tt} sec")
         tt = time()
@@ -68,7 +70,11 @@ class LESST:
 
     def predict(self):
         predictions = self.Gmodel.predict(self.val)
-        return predictions
+        preds = []
+        for i in range(0, int(len(predictions) / self.steps)):
+            pred = predictions[i * self.steps : (i + 1) * self.steps]
+            preds.append(self.seas[i].reseasonalize_pred(pred))
+        return preds
 
 
 # predict

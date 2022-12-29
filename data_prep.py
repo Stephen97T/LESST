@@ -1,30 +1,22 @@
 import numpy as np
+from seasonality import Seasonality
 
-"""
-def split_train_val_test(data, testsize):
+
+def split_train_val_test(data, testsize, freq):
     ytrain = []
     yval = []
     ytest = []
-    for ts in data.unique_id.unique():
-        y = np.array(data[data.unique_id == ts].y)
-        ytrain.append(y[: -2 * testsize])
-        yval.append(y[-2 * testsize : -testsize])
-        ytest.append(y[-testsize:])
-    return ytrain, yval, ytest
-"""
-
-
-def split_train_val_test(data, testsize):
-    ytrain = []
-    yval = []
-    ytest = []
+    seasonalities = []
     for ts in data.index:
+        seas = Seasonality(freq)
         y = np.array(data.loc[ts])
         y = y[~np.isnan(y)]
-        ytrain.append(y[: -2 * testsize])
-        yval.append(y[-2 * testsize : -testsize])
+        ytr = seas.deseasonalize_serie(y[:-testsize])
+        ytrain.append(ytr[:-testsize])
+        yval.append(ytr[-testsize:])
         ytest.append(y[-testsize:])
-    return ytrain, yval, ytest
+        seasonalities.append(seas)
+    return ytrain, yval, ytest, seasonalities
 
 
 def shift(data, timesteps):
@@ -61,13 +53,13 @@ def last_values(ytrain, timesteps):
     return last
 
 
-def prepare_inputoutput(df, testsize):
+def prepare_inputoutput(df, testsize, freq):
     inputs = {}
     outputs = {}
     for i in df.cluster.unique():
         data = df[df.cluster == i]
         data = data.drop("cluster", axis=1)
-        train, val, test = split_train_val_test(data, testsize)
+        train, val, test, _ = split_train_val_test(data, testsize, freq)
         X, Y = prepare_train(ytrain=train, timesteps=testsize)
         inputs.update({i: X})
         outputs.update({i: Y})

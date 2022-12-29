@@ -22,26 +22,26 @@ huber = HuberRegressor()
 gradient = GradientBoostingRegressor()
 
 
-dataset = "yearly"
+dataset = "quarterly"
 n_clusters = 60
-horizon = 3
-frequency = 1
+horizon = 4
+frequency = 4
 localmodel = ols
 globalmodel = huber
 
-less = LESST(dataset, n_clusters)
+less = LESST(dataset, n_clusters, frequency)
 less.fit(
     prediction_steps=horizon, localmodel=localmodel, globalmodel=globalmodel
 )
 
 predictions = less.predict()
-leni = len(predictions) / horizon
-predictions = predictions.reshape(int(leni), horizon)
+
 
 train = less.train
 val = less.val
 test = less.test
 
+"""
 total_train = []
 for i in range(0, len(train)):
     total_train.append(np.concatenate([train[i], val[i]]))
@@ -63,3 +63,4 @@ bench[bench >= 1e308] = 0
 lesst[lesst >= 1e308] = 0
 print(bench.mean())
 print(lesst.mean())
+"""
