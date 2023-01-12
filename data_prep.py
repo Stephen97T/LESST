@@ -2,21 +2,33 @@ import numpy as np
 from seasonality import Seasonality
 
 
-def split_train_val_test(data, testsize, freq):
+def split_train_val(data, testsize, freq, deseason=True):
     ytrain = []
     yval = []
-    ytest = []
     seasonalities = []
     for ts in data.index:
         seas = Seasonality(freq)
         y = np.array(data.loc[ts])
         y = y[~np.isnan(y)]
-        ytr = seas.deseasonalize_serie(y[:-testsize])
+        if deseason:
+            seas = Seasonality(freq)
+            ytr = seas.deseasonalize_serie(y)
+            seasonalities.append(seas)
+        else:
+            ytr = y
         ytrain.append(ytr[:-testsize])
         yval.append(ytr[-testsize:])
-        ytest.append(y[-testsize:])
-        seasonalities.append(seas)
-    return ytrain, yval, ytest, seasonalities
+
+    return ytrain, yval, seasonalities
+
+
+def get_train(data, testsize):
+    ytrain = []
+    for ts in data.index:
+        y = np.array(data.loc[ts])
+        y = y[~np.isnan(y)]
+        ytrain.append(y[:-testsize])
+    return ytrain
 
 
 def shift(data, timesteps):
@@ -53,13 +65,13 @@ def last_values(ytrain, timesteps):
     return last
 
 
-def prepare_inputoutput(df, testsize, freq):
+def prepare_inputoutput(df, testsize, freq, deseason=True):
     inputs = {}
     outputs = {}
     for i in df.cluster.unique():
         data = df[df.cluster == i]
         data = data.drop("cluster", axis=1)
-        train, val, test, _ = split_train_val_test(data, testsize, freq)
+        train, val, _ = split_train_val(data, testsize, freq, deseason)
         X, Y = prepare_train(ytrain=train, timesteps=testsize)
         inputs.update({i: X})
         outputs.update({i: Y})

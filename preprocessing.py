@@ -69,6 +69,16 @@ def read_m4_series(dataset, train_test="Train", datapath="C:/thesis/data/m4"):
     return df
 
 
+def read_m4test_series(
+    dataset, train_test="Test", datapath="C:/thesis/data/m4"
+):
+    df = pd.read_csv(
+        f"{datapath}/{train_test}/{dataset}-{train_test.lower()}.csv",
+        index_col=0,
+    )
+    return df
+
+
 def read_tsfeatures(dataset, datapath="C:/thesis/data/m4/processed/"):
     df = pd.read_csv(
         f"{datapath}/tsfeatures/features_train_val-{dataset}.csv", index_col=0
