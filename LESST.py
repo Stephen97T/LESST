@@ -67,6 +67,6 @@ class LESST:
                 preds.append(self.seas[i].reseasonalize_pred(pred))
         else:
             preds = predictions.reshape(
-                int(len(predictions).self.steps), self.steps
+                int(len(predictions) / self.steps), self.steps
             )
         return np.array(preds)

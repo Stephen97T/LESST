@@ -22,13 +22,13 @@ def split_train_val(data, testsize, freq, deseason=True):
     return ytrain, yval, seasonalities
 
 
-def get_train(data, testsize):
-    ytrain = []
+def to_array(data):
+    series = []
     for ts in data.index:
-        y = np.array(data.loc[ts])
-        y = y[~np.isnan(y)]
-        ytrain.append(y[:-testsize])
-    return ytrain
+        serie = np.array(data.loc[ts])
+        serie = serie[~np.isnan(serie)]
+        series.append(serie)
+    return series
 
 
 def shift(data, timesteps):
