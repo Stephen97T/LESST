@@ -134,7 +134,7 @@ def results_LESST(
                 print(f"LESST performance calculation time {time()-t} sec")
                 lesst_owas.update(
                     {
-                        f"ncl:{n_cluster}/lm:{localmodelname}/gm:{globalmodenamel}": lesst_owa,
+                        f"ncl:{n_cluster}/lm:{localmodelname}/gm:{globalmodelname}": lesst_owa,
                     }
                 )
         t = time()
