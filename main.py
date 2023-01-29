@@ -18,7 +18,7 @@ from time import time
 models = {
     "xgb": XGBRegressor(tree_method="gpu_hist"),
     "lgbm": LGBMRegressor(),
-    "rf": RandomForestRegressor(
+    "rf1": RandomForestRegressor(
         bootstrap=True, max_depth=80, max_features=6, n_estimators=100
     ),
     "ols": LinearRegression(),
@@ -27,11 +27,11 @@ models = {
 }
 
 
-datasets = ["quarterly"]
+datasets = ["Monthly"]
 n_clusters = [300]
-frequencies = [4]
-localmodels = ["ols", "ols", "ols", "ols", "ols", "ols"]
-globalmodels = ["ols", "huber", "xgb", "lgbm", "rf", "gradient"]
+frequencies = [12]
+localmodels = ["huber"]
+globalmodels = ["rf1"]
 
 
 def run_LESST(
@@ -138,10 +138,10 @@ def results_LESST(
                     }
                 )
         t = time()
-        # benchmark_owa = benchmark(
-        #    predictions, dataset, res_train, res_test, horizon, frequency
-        # )
-        benchmark_owa = 1
+        benchmark_owa = benchmark(
+            predictions, dataset, res_train, res_test, horizon, frequency
+        )
+        # benchmark_owa = 1
         print(f"Benchmark performance calculation time {time()-t} sec")
         total_lesst_owas.update({f"ds:{dataset}": lesst_owas})
         total_benchmark_owas.update({f"ds:{dataset}": benchmark_owa})

@@ -7,6 +7,7 @@ Created on Fri Oct  7 13:43:01 2022
 import numpy as np
 import pandas as pd
 from tsforecast import SeasonalNaive, ThetaF
+from seasonality import Naive2
 
 
 class PerformanceMeasures:
@@ -37,7 +38,7 @@ class PerformanceMeasures:
 
     def OWA(self, real, predictions, train):
         horizon = len(predictions)
-        naive = SeasonalNaive(self.freq)
+        naive = Naive2(self.freq)
         naive.fit(train)
         naivepred = naive.predict(horizon)
         naive_smape = self.sMAPE(real, naivepred)
