@@ -8,6 +8,7 @@ import numpy as np
 import pandas as pd
 from tsforecast import SeasonalNaive, ThetaF
 from seasonality import Naive2
+from sklearn.metrics import mean_squared_error
 
 
 class PerformanceMeasures:
@@ -36,6 +37,10 @@ class PerformanceMeasures:
         mase = mase_up / mase_down
         return mase
 
+    def RMSE(self, real, predictions):
+        rmse = mean_squared_error(real, predictions, squared=False)
+        return rmse
+
     def OWA(self, real, predictions, train):
         horizon = len(predictions)
         naive = Naive2(self.freq)
@@ -45,8 +50,9 @@ class PerformanceMeasures:
         naive_mase = self.MASE(real, naivepred, train)
         model_smape = self.sMAPE(real, predictions)
         model_mase = self.MASE(real, predictions, train)
+        model_rmse = self.RMSE(real, predictions)
         owa = (model_smape / naive_smape + model_mase / naive_mase) / 2
-        return owa
+        return owa, model_smape, model_mase, model_rmse
 
 
 class BenchmarkModel:
@@ -64,5 +70,5 @@ class BenchmarkModel:
         self.fit(train)
         predictions = self.predict(horizon)
         measure = PerformanceMeasures(freq)
-        owa = measure.OWA(real, predictions, train)
-        return owa
+        owa, smape, mase, rmse = measure.OWA(real, predictions, train)
+        return owa, smape, mase, rmse

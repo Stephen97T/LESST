@@ -22,14 +22,10 @@ models = {
     "gradient": GradientBoostingRegressor(),
 }
 
+datasets = ["Yearly", "Quarterly", "Monthly", "Weekly", "Daily", "Hourly"]
+frequencies = [1, 4, 12, 52, 7, 24]
+n_clusters = clusters = [3, 10, 30, 50, 100]
 
-# datasets = ["Yearly", "Quarterly", "Monthly", "Weekly", "Daily", "Hourly"]
-# frequencies = [1, 4, 12, 52, 7, 24]
-datasets = ["Quarterly"]
-frequencies = [4]
-n_clusters = clusters = [100]  # [3, 10, 30, 50, 100]
-localmodels = ["ols"]
-"""
 localmodels = [
     "ols",
     "huber",
@@ -37,14 +33,9 @@ localmodels = [
     "lgbm",
     "huber",
     "lgbm",
-    "xgbm",
-    "lgbm",
 ]
-"""
-globalmodels = [
-    "ols"
-]  # ["ols", "huber", "xgb", "lgbm", "rf", "rf", "rf", "huber"]
-benchds, lessds, predisds, lessisds = results_LESST(
+globalmodels = ["ols", "huber", "xgb", "lgbm", "rf", "huber"]
+benchds, lessds = results_LESST(
     datasets,
     n_clusters,
     frequencies,
@@ -54,7 +45,7 @@ benchds, lessds, predisds, lessisds = results_LESST(
     deseason=True,
 )
 
-bench, less, predis, lessis = results_LESST(
+bench, less = results_LESST(
     datasets,
     n_clusters,
     frequencies,
