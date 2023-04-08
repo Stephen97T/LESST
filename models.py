@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from xgboost import XGBRegressor
 from sklearn.multioutput import MultiOutputRegressor
-from data_prep import last_values
+from data_prep import last_values, rolling_window
 
 
 class LocalModel:
@@ -38,8 +38,11 @@ class GlobalModel:
         self.clusterids = clusterids
         self.local_weights = localweights
 
-    def localpredictions(self, x):
-        x = np.array(last_values(x, timesteps=self.testsize))
+    def localpredictions(self, x, rolling=False):
+        if rolling:
+            x = np.array(rolling_window(x, timesteps=self.testsize))
+        else:
+            x = np.array(last_values(x, timesteps=self.testsize))
 
         preds = {}
         for i in range(0, self.clusterids.shape[1]):
@@ -61,8 +64,8 @@ class GlobalModel:
         totalpred = np.array(totalpred)
         return totalpred
 
-    def fit(self, x, y):
-        preds = self.localpredictions(x)
+    def fit(self, x, y, rolling=False):
+        preds = self.localpredictions(x, rolling)
         totalpred = self.weightedpredictions(preds)
         # reshape data for training the global model
         x = totalpred.reshape(

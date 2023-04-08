@@ -1,6 +1,6 @@
 import os
 
-os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
+os.environ["R_HOME"] = "E:/documents/work/mini/envs/work/lib/R"
 import pandas as pd
 from copy import deepcopy
 from sklearn.base import BaseEstimator, RegressorMixin

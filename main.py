@@ -13,25 +13,7 @@ import numpy as np
 from data_prep import to_array
 from preprocessing import read_m4test_series, read_m4_series
 from time import time
-
-# models to consider
-models = {
-    "xgb": XGBRegressor(tree_method="gpu_hist"),
-    "lgbm": LGBMRegressor(),
-    "rf1": RandomForestRegressor(
-        bootstrap=True, max_depth=80, max_features=6, n_estimators=100
-    ),
-    "ols": LinearRegression(),
-    "huber": HuberRegressor(),
-    "gradient": GradientBoostingRegressor(),
-}
-
-
-datasets = ["Monthly"]
-n_clusters = [300]
-frequencies = [12]
-localmodels = ["huber"]
-globalmodels = ["rf1"]
+import pickle
 
 
 def run_LESST(
@@ -44,7 +26,16 @@ def run_LESST(
     globalmodel,
     deseason,
 ):
-    less = LESST(dataset, train, n_clusters, frequency, deseason)
+    less = LESST(
+        dataset,
+        train,
+        n_clusters,
+        frequency,
+        deseason,
+        split=True,
+        start=True,
+        rolling=False,
+    )
     less.fit(
         prediction_steps=horizon,
         localmodel=localmodel,
@@ -95,9 +86,12 @@ def results_LESST(
     globalmodels,
     models,
     deseason,
+    check_benchmark=False,
 ):
     total_lesst_owas = {}
     total_benchmark_owas = {}
+    predis = []
+    lessis = []
     for instance, dataset in enumerate(datasets):
         test = read_m4test_series(dataset)
         train = read_m4_series(dataset)
@@ -110,20 +104,63 @@ def results_LESST(
             for localmodelname, globalmodelname in zip(
                 localmodels, globalmodels
             ):
-                localmodel = models[localmodelname]
-                globalmodel = models[globalmodelname]
-                predictions, less = run_LESST(
-                    dataset,
-                    train,
-                    n_cluster,
-                    horizon,
-                    frequency,
-                    localmodel,
-                    globalmodel,
-                    deseason,
+                try:
+                    localmodel = models[localmodelname]
+                    globalmodel = models[globalmodelname]
+                    predictions, less = run_LESST(
+                        dataset,
+                        train,
+                        n_cluster,
+                        horizon,
+                        frequency,
+                        localmodel,
+                        globalmodel,
+                        deseason,
+                    )
+                    lessis.append(less)
+                    predis.append(predictions)
+                    t = time()
+                    lesst_owa = performance_LESST(
+                        predictions,
+                        dataset,
+                        res_train,
+                        res_test,
+                        horizon,
+                        frequency,
+                    )
+                    print(f"LESST performance calculation time {time()-t} sec")
+                    lesst_owas.update(
+                        {
+                            f"ncl_{n_cluster}_lm_{localmodelname}_gm_{globalmodelname}": lesst_owa,
+                        }
+                    )
+                    with open(
+                        f"E:/documents/work/thesis/ncl_{n_cluster}_lm_{localmodelname}_gm_{globalmodelname}_ds_{deseason}.pkl",
+                        "wb",
+                    ) as handle:
+                        pickle.dump(
+                            lesst_owas,
+                            handle,
+                            protocol=pickle.HIGHEST_PROTOCOL,
+                        )
+                except Exception as e:
+                    print(
+                        f"ERROR {dataset}_{n_cluster}_{localmodelname}_{globalmodelname}_ds:{deseason}: {e}"
+                    )
+                    continue
+
+        try:
+            total_lesst_owas.update({f"ds:{dataset}": lesst_owas})
+            with open(
+                f"E:/documents/work/thesis/lesst_{dataset}_ds_{deseason}.pkl",
+                "wb",
+            ) as handle:
+                pickle.dump(
+                    total_lesst_owas, handle, protocol=pickle.HIGHEST_PROTOCOL
                 )
+            if check_benchmark:
                 t = time()
-                lesst_owa = performance_LESST(
+                benchmark_owa = benchmark(
                     predictions,
                     dataset,
                     res_train,
@@ -131,30 +168,23 @@ def results_LESST(
                     horizon,
                     frequency,
                 )
-                print(f"LESST performance calculation time {time()-t} sec")
-                lesst_owas.update(
-                    {
-                        f"ncl:{n_cluster}/lm:{localmodelname}/gm:{globalmodelname}": lesst_owa,
-                    }
-                )
-        t = time()
-        benchmark_owa = benchmark(
-            predictions, dataset, res_train, res_test, horizon, frequency
-        )
-        # benchmark_owa = 1
-        print(f"Benchmark performance calculation time {time()-t} sec")
-        total_lesst_owas.update({f"ds:{dataset}": lesst_owas})
-        total_benchmark_owas.update({f"ds:{dataset}": benchmark_owa})
+                # benchmark_owa = 1
+                print(f"Benchmark performance calculation time {time()-t} sec")
 
-    return total_benchmark_owas, total_lesst_owas
+                total_benchmark_owas.update({f"ds:{dataset}": benchmark_owa})
+                with open(
+                    f"E:/documents/work/thesis/benchmark_{dataset}_ds_{deseason}.pkl",
+                    "wb",
+                ) as handle:
+                    pickle.dump(
+                        total_benchmark_owas,
+                        handle,
+                        protocol=pickle.HIGHEST_PROTOCOL,
+                    )
+        except Exception as e:
+            print(
+                f"ERROR {dataset}_{n_cluster}_{localmodelname}_{globalmodelname}_ds:{deseason}: {e}"
+            )
+            continue
 
-
-bench, less = results_LESST(
-    datasets,
-    n_clusters,
-    frequencies,
-    localmodels,
-    globalmodels,
-    models,
-    deseason=False,
-)
+    return total_benchmark_owas, total_lesst_owas, predis, lessis

@@ -3,7 +3,7 @@
 import os
 from time import time
 
-os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
+os.environ["R_HOME"] = "E:/documents/work/mini/envs/work/lib/R"
 from typing import List
 from tsfeatures.tsfeatures_r import tsfeatures_r
 import pandas as pd

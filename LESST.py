@@ -10,12 +10,25 @@ np.random.seed(1)
 
 
 class LESST:
-    def __init__(self, dataset, df, n_clusters, freq, deseason):
+    def __init__(
+        self,
+        dataset,
+        df,
+        n_clusters,
+        freq,
+        deseason,
+        split=True,
+        start=True,
+        rolling=False,
+    ):
         self.n_clusters = n_clusters
         self.feats = read_tsfeatures(dataset).reset_index(drop=True)
         self.df = df
         self.freq = freq
         self.deseason = deseason
+        self.split = split
+        self.start = start
+        self.rolling = rolling
 
     def fit(
         self,
@@ -29,11 +42,12 @@ class LESST:
         clust.cluster_features(self.feats, self.df)
         local_weights = clust.cluster_distances
         clusterids = clust.idcluster_distance
+        self.cluster_idmap = clust.idmapping
         print(f"clustering step took {time()-t} sec")
         tt = time()
         testsize = prediction_steps
         inputs, outputs = prepare_inputoutput(
-            self.df, testsize, self.freq, self.deseason
+            self.df, testsize, self.freq, self.deseason, self.split, self.start
         )
         print(f"local model dataprep took {time()-tt} sec")
         tt = time()
@@ -43,7 +57,11 @@ class LESST:
 
         tt = time()
         self.train, self.val, self.seas = split_train_val(
-            self.df.drop("cluster", axis=1), testsize, self.freq, self.deseason
+            self.df.drop("cluster", axis=1),
+            testsize,
+            self.freq,
+            self.deseason,
+            split=self.rolling,
         )
         print(f"datasplit part took {time()-tt} sec")
         tt = time()
@@ -54,7 +72,7 @@ class LESST:
             local_weights,
             model=globalmodel,
         )
-        self.Gmodel.fit(self.train, self.val)
+        self.Gmodel.fit(self.train, self.val, self.rolling)
         print(f"global model part took {time()-tt} sec")
         print(f"total running time {time()-t} sec")
 
@@ -63,7 +81,10 @@ class LESST:
         if self.deseason:
             preds = []
             for i in range(0, int(len(predictions) / self.steps)):
-                pred = predictions[i * self.steps : (i + 1) * self.steps]
+                pred = np.reshape(
+                    predictions[i * self.steps : (i + 1) * self.steps],
+                    self.steps,
+                )
                 preds.append(self.seas[i].reseasonalize_pred(pred))
         else:
             preds = predictions.reshape(

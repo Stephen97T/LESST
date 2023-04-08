@@ -39,6 +39,7 @@ class FeatureClustering:
         self.tree = KDTree(self.midpoints)
         cluster_distances = self.tree.query(tsfeatures, k=self.n_clusters)
         self.idcluster_distance = cluster_distances[1]
+        cluster_distances[0][cluster_distances[0] == 0] = np.power(np.e, -100)
         self.cluster_distances = (
             cluster_distances[0].sum(axis=1) / cluster_distances[0].T
         )
