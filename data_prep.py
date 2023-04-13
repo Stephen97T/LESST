@@ -7,7 +7,6 @@ def split_train_val(data, testsize, freq, deseason=True, split=True):
     yval = []
     seasonalities = []
     for ts in data.index:
-        seas = Seasonality(freq)
         y = np.array(data.loc[ts])
         y = y[~np.isnan(y)]
         if deseason:

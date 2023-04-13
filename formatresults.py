@@ -1,9 +1,9 @@
 import pickle
 import pandas as pd
 
-with (
-    open("C:/thesis/results/benchmark_Hourly_ds_True.pkl", "rb")
-) as openfile:
+path = "E:/documents/work/thesis"
+
+with (open(f"{path}/benchmark_Hourly_ds_False.pkl", "rb")) as openfile:
     benchmark = pickle.load(openfile)
 
 owa = {}
@@ -23,18 +23,55 @@ for i in list(benchmark.keys()):
 benchmark = pd.DataFrame(
     [owa, smape, mase, rmse], index=["OWA", "SMAPE", "MASE", "RMSE"]
 )
-benchmark.to_excel("C:/thesis/results/benchmark.xlsx")
+benchmark.to_excel(f"{path}/benchmark.xlsx")
 
 
 c = {"3 "}
-with (open("C:/thesis/results/lesst_Hourly_ds_False.pkl", "rb")) as openfile:
+with (open(f"{path}/lesst_Hourly_ds_False.pkl", "rb")) as openfile:
     season = pickle.load(openfile)
 
-for i in list(benchmark.keys()):
-    if "OWA" in i:
-        res = benchmark[i]
-        for j in list(res.keys()):
-            naming = res[j.split("_")]
 
-with (open("C:/thesis/results/lesst_Hourly_ds_True.pkl", "rb")) as openfile:
+df = {}
+for dataset in season:
+    if "OWA" in dataset:
+        dset = dataset.replace("ds:", "")
+        tabel = {
+            "3 clusters": {},
+            "10 clusters": {},
+            "30 clusters": {},
+            "50 clusters": {},
+            "100 clusters": {},
+        }
+        for models in season[dataset]:
+            cname = models.split("_")
+            rname = f"{cname[3].capitalize()}-{cname[5].capitalize()}"
+            value = season[dataset][models]
+            key = f"{cname[1]} clusters"
+            tabel[key].update({rname: value})
+        tabel = pd.DataFrame(tabel)
+        df.update({dset: tabel})
+        tabel.to_excel(f"E:/documents/work/thesis/LESST_{dset}_Seasonal.xlsx")
+
+with (open(f"{path}/lesst_Hourly_ds_True.pkl", "rb")) as openfile:
     deseason = pickle.load(openfile)
+
+dfs = {}
+for dataset in deseason:
+    if "OWA" in dataset:
+        dset = dataset.replace("ds:", "")
+        tabel = {
+            "3 clusters": {},
+            "10 clusters": {},
+            "30 clusters": {},
+            "50 clusters": {},
+            "100 clusters": {},
+        }
+        for models in deseason[dataset]:
+            cname = models.split("_")
+            rname = f"{cname[3].capitalize()}-{cname[5].capitalize()}"
+            value = deseason[dataset][models]
+            key = f"{cname[1]} clusters"
+            tabel[key].update({rname: value})
+        tabel = pd.DataFrame(tabel)
+        dfs.update({dset: tabel})
+        tabel.to_excel(f"E:/documents/work/thesis/LESST_{dset}.xlsx")

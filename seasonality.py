@@ -219,4 +219,5 @@ class Seasonality:
             .predict(horizon)
         )
         y_hat = s_hat * pred
+        # y_hat = pred * self.s_hat[-horizon:]
         return y_hat
