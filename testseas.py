@@ -5,7 +5,7 @@ from sklearn.linear_model import (
 )
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
-from main import results_LESST
+from main import run_LESST, performance_LESST
 import numpy as np
 
 np.seed = 1
@@ -22,21 +22,30 @@ models = {
     "gradient": GradientBoostingRegressor(),
 }
 
-datasets = ["Quarterly"]  # , "Monthly", "Weekly", "Daily", "Hourly"]
-frequencies = [4]  # , 12, 52, 7, 24]
-n_clusters = clusters = [2]
+dataset = "Yearly"  # , "Monthly", "Weekly", "Daily", "Hourly"]
+frequency = 1  # , 12, 52, 7, 24]
+n_cluster = 2
+deseason = False
 
-localmodels = [
-    "huber",
-]
-globalmodels = ["huber"]
-benchds, lessds = results_LESST(
-    datasets,
-    n_clusters,
-    frequencies,
-    localmodels,
-    globalmodels,
-    models,
-    deseason=True,
-    check_benchmark=False,
+localmodel = "huber"
+globalmodel = "huber"
+
+predictions, less = run_LESST(
+    dataset,
+    train,
+    n_cluster,
+    horizon,
+    frequency,
+    localmodel,
+    globalmodel,
+    deseason,
+)
+
+lesst_owa, lesst_smape, lesst_mase, lesst_rmse, = performance_LESST(
+    predictions,
+    dataset,
+    res_train,
+    res_test,
+    horizon,
+    frequency,
 )
