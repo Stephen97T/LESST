@@ -175,6 +175,7 @@ class Naive2:
 
     def __init__(self, seasonality):
         self.seasonality = seasonality
+        seed(1)
 
     def fit(self, ts_init):
         seasonality_in = deseasonalize(ts_init, ppy=self.seasonality)

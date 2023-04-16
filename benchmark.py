@@ -42,17 +42,43 @@ class PerformanceMeasures:
         return rmse
 
     def OWA(self, real, predictions, train):
-        horizon = len(predictions)
-        naive = Naive2(self.freq)
-        naive.fit(train)
-        naivepred = naive.predict(horizon)
-        naive_smape = self.sMAPE(real, naivepred)
-        naive_mase = self.MASE(real, naivepred, train)
-        model_smape = self.sMAPE(real, predictions)
-        model_mase = self.MASE(real, predictions, train)
-        model_rmse = self.RMSE(real, predictions)
-        owa = (model_smape / naive_smape + model_mase / naive_mase) / 2
-        return owa, model_smape, model_mase, model_rmse
+        model_owa = []
+        model_smape = []
+        model_mase = []
+        model_rmse = []
+        naive_smape = []
+        naive_mase = []
+
+        for i in range(0, len(train)):
+            horizon = len(predictions[i])
+            naive = Naive2(self.freq)
+            naive.fit(train[i])
+            naivepred = naive.predict(horizon)
+            naive_smape.append(self.sMAPE(real[i], naivepred))
+            naive_mase.append(self.MASE(real[i], naivepred, train[i]))
+            model_smape.append(self.sMAPE(real[i], predictions[i]))
+            model_mase.append(self.MASE(real[i], predictions[i], train[i]))
+            model_rmse.append(self.RMSE(real[i], predictions[i]))
+        measures = []
+        for measure in [
+            model_mase,
+            model_smape,
+            naive_mase,
+            naive_smape,
+            model_rmse,
+        ]:
+            measure = np.array(measure)
+            measure[measure >= 1e308] = np.nan
+            measures.append(np.nan_to_num(measure).mean())
+        [
+            model_mase,
+            model_smape,
+            naive_mase,
+            naive_smape,
+            model_rmse,
+        ] = measures
+        model_owa = (model_smape / naive_smape + model_mase / naive_mase) / 2
+        return model_owa, model_smape, model_mase, model_rmse
 
 
 class BenchmarkModel:
@@ -67,8 +93,10 @@ class BenchmarkModel:
         return predictions
 
     def performance(self, real, train, horizon, freq):
-        self.fit(train)
-        predictions = self.predict(horizon)
+        predictions = []
+        for i in range(0, len(train)):
+            self.fit(train[i])
+            predictions.append(self.predict(horizon))
         measure = PerformanceMeasures(freq)
         owa, smape, mase, rmse = measure.OWA(real, predictions, train)
         return owa, smape, mase, rmse

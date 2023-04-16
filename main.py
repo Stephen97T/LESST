@@ -47,69 +47,19 @@ def run_LESST(
 
 
 def performance_LESST(predictions, dataset, train, test, horizon, frequency):
-    lesst_owa = []
-    lesst_smape = []
-    lesst_mase = []
-    lesst_rmse = []
-
-    for i in range(0, len(train)):
-        measure = PerformanceMeasures(frequency)
-        model_owa, model_smape, model_mase, model_rmse = measure.OWA(
-            test[i], predictions[i], train[i]
-        )
-        lesst_owa.append(model_owa)
-        lesst_smape.append(model_smape)
-        lesst_mase.append(model_mase)
-        lesst_rmse.append(model_rmse)
-
-    lesst_owa = np.array(lesst_owa)
-    lesst_smape = np.array(lesst_smape)
-    lesst_mase = np.array(lesst_mase)
-    lesst_rmse = np.array(lesst_rmse)
-
-    lesst_owa[lesst_owa >= 1e308] = np.nan
-    lesst_owa = np.nan_to_num(lesst_owa).mean()
-    lesst_smape[lesst_smape >= 1e308] = np.nan
-    lesst_smape = np.nan_to_num(lesst_smape).mean()
-    lesst_mase[lesst_mase >= 1e308] = np.nan
-    lesst_mase = np.nan_to_num(lesst_mase).mean()
-    lesst_rmse[lesst_rmse >= 1e308] = np.nan
-    lesst_rmse = np.nan_to_num(lesst_rmse).mean()
+    measure = PerformanceMeasures(frequency)
+    lesst_owa, lesst_smape, lesst_mase, lesst_rmse = measure.OWA(
+        test, predictions, train
+    )
     return lesst_owa, lesst_smape, lesst_mase, lesst_rmse
 
 
 def benchmark(predictions, dataset, train, test, horizon, frequency):
-    total_train = train
-
-    benchmark_owa = []
-    benchmark_smape = []
-    benchmark_mase = []
-    benchmark_rmse = []
-
-    for i in range(0, len(train)):
-        benchmark = BenchmarkModel(ThetaF(frequency))
-        bench_owa, bench_smape, bench_mase, bench_rmse = benchmark.performance(
-            test[i], train[i], horizon, frequency
-        )
-        benchmark_owa.append(bench_owa)
-        benchmark_smape.append(bench_smape)
-        benchmark_mase.append(bench_mase)
-        benchmark_rmse.append(bench_rmse)
-
-    benchmark_owa = np.array(benchmark_owa)
-    benchmark_smape = np.array(benchmark_smape)
-    benchmark_mase = np.array(benchmark_mase)
-    benchmark_rmse = np.array(benchmark_rmse)
-
-    benchmark_owa[benchmark_owa >= 1e308] = np.nan
-    benchmark_owa = np.nan_to_num(benchmark_owa).mean()
-    benchmark_smape[benchmark_smape >= 1e308] = np.nan
-    benchmark_smape = np.nan_to_num(benchmark_smape).mean()
-    benchmark_mase[benchmark_mase >= 1e308] = np.nan
-    benchmark_mase = np.nan_to_num(benchmark_mase).mean()
-    benchmark_rmse[benchmark_rmse >= 1e308] = np.nan
-    benchmark_rmse = np.nan_to_num(benchmark_rmse).mean()
-    return benchmark_owa, benchmark_smape, benchmark_mase, benchmark_rmse
+    benchmark = BenchmarkModel(ThetaF(frequency))
+    bench_owa, bench_smape, bench_mase, bench_rmse = benchmark.performance(
+        test, train, horizon, frequency
+    )
+    return bench_owa, bench_smape, bench_mase, bench_rmse
 
 
 def results_LESST(

@@ -39,7 +39,7 @@ class LESST:
         self.steps = prediction_steps
         t = time()
         clust = FeatureClustering(self.n_clusters)
-        clust.cluster_features(self.feats, self.df)
+        clust.cluster_features(self.feats, self.df, self.steps)
         local_weights = clust.cluster_distances
         clusterids = clust.idcluster_distance
         self.cluster_idmap = clust.idmapping
@@ -61,7 +61,7 @@ class LESST:
             testsize,
             self.freq,
             self.deseason,
-            split=self.rolling,
+            split=True,
         )
         print(f"datasplit part took {time()-tt} sec")
         tt = time()

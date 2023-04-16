@@ -29,7 +29,7 @@ class FeatureClustering:
         kmeans.fit(timeseries)
         return kmeans
 
-    def cluster_features(self, tsfeatures, timeseries):
+    def cluster_features(self, tsfeatures, timeseries, timesteps):
         tsfeatures, unique_ids = self.get_tsfeatures(tsfeatures)
         self.kmeans = self.cluster_kmeans(
             tsfeatures, n_clusters=self.n_clusters
@@ -46,6 +46,13 @@ class FeatureClustering:
         self.cluster_distances = (
             self.cluster_distances / self.cluster_distances.sum(axis=0)
         ).T
+        weights_ordered = []
+        for weight, order in zip(
+            self.cluster_distances, self.idcluster_distance
+        ):
+            for step in range(0, timesteps):
+                weights_ordered.append(weight[np.argsort(order)])
+        self.cluster_distances = np.array(weights_ordered)
         idmapping = {}
         for index in range(0, len(unique_ids)):
             idmapping.update({f"{unique_ids[index]}": self.clusters[index]})

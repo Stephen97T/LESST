@@ -44,39 +44,29 @@ class GlobalModel:
         else:
             x = np.array(last_values(x, timesteps=self.testsize))
 
-        preds = {}
+        preds = []
         for i in range(0, self.clusterids.shape[1]):
             # predict for all series the predictions for each local model
-            preds.update({i: self.localmodel.predict(x, cluster=i)})
+            preds.append(
+                self.localmodel.predict(x, cluster=i).reshape(
+                    -1,
+                )
+            )
+        preds = np.transpose(np.array(preds))
         return preds
 
     def weightedpredictions(self, preds):
-        totalpred = []
-        for i in range(0, self.clusterids.shape[0]):
-            ypred = []
-            for j in range(0, self.clusterids.shape[1]):
-                # multiply local predictions with the cluster weights
-                ypred.append(
-                    self.local_weights[i, j] * preds[self.clusterids[i, j]][i]
-                )
-            # save all weighted predictions
-            totalpred.append(np.array(ypred).T)
-        totalpred = np.array(totalpred)
+        totalpred = self.local_weights * preds
         return totalpred
 
     def fit(self, x, y, rolling=False):
         preds = self.localpredictions(x, rolling)
         totalpred = self.weightedpredictions(preds)
-        # reshape data for training the global model
-        x = totalpred.reshape(
-            totalpred.shape[0] * totalpred.shape[1], totalpred.shape[2]
-        )
         y = np.array(y).reshape(-1, 1)
         self.model.fit(x, y)
 
     def predict(self, values):
         x = np.array(last_values(values, timesteps=self.testsize))
-
         preds = self.localpredictions(x)
         totalpred = self.weightedpredictions(preds)
 
