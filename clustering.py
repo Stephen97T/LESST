@@ -50,9 +50,10 @@ class FeatureClustering:
         for weight, order in zip(
             self.cluster_distances, self.idcluster_distance
         ):
-            for step in range(0, timesteps):
-                weights_ordered.append(weight[np.argsort(order)])
-        self.cluster_distances = np.array(weights_ordered)
+            weights_ordered.append(weight[np.argsort(order)])
+        self.cluster_distances = np.repeat(
+            np.array(weights_ordered), timesteps, axis=0
+        )
         idmapping = {}
         for index in range(0, len(unique_ids)):
             idmapping.update({f"{unique_ids[index]}": self.clusters[index]})

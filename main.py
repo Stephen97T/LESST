@@ -25,6 +25,7 @@ def run_LESST(
     localmodel,
     globalmodel,
     deseason,
+    rolling=False,
 ):
     less = LESST(
         dataset,
@@ -34,7 +35,7 @@ def run_LESST(
         deseason,
         split=True,
         start=True,
-        rolling=False,
+        rolling=rolling,
     )
     less.fit(
         prediction_steps=horizon,

@@ -26,9 +26,9 @@ models = {
     "gradient": GradientBoostingRegressor(),
 }
 
-dataset = "Yearly"  # , "Monthly", "Weekly", "Daily", "Hourly"]
-frequency = 1  # , 12, 52, 7, 24]
-n_cluster = 10
+dataset = "Monthly"  # , "Monthly", "Weekly", "Daily", "Hourly"]
+frequency = 12  # , 12, 52, 7, 24]
+n_cluster = 3
 deseason = False
 
 localmodel = models["huber"]
@@ -47,6 +47,7 @@ predictions, less = run_LESST(
     localmodel,
     globalmodel,
     deseason,
+    rolling=True,
 )
 
 lesst_owa, lesst_smape, lesst_mase, lesst_rmse, = performance_LESST(

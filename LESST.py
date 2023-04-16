@@ -56,12 +56,16 @@ class LESST:
         print(f"local model step took {time()-tt} sec")
 
         tt = time()
+        if self.rolling:
+            split = False
+        else:
+            split = True
         self.train, self.val, self.seas = split_train_val(
             self.df.drop("cluster", axis=1),
             testsize,
             self.freq,
             self.deseason,
-            split=True,
+            split=split,
         )
         print(f"datasplit part took {time()-tt} sec")
         tt = time()

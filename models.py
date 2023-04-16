@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 from xgboost import XGBRegressor
 from sklearn.multioutput import MultiOutputRegressor
-from data_prep import last_values, rolling_window
+from data_prep import last_values, rolling_window, rolling_output
 
 
 class LocalModel:
@@ -55,24 +55,33 @@ class GlobalModel:
         preds = np.transpose(np.array(preds))
         return preds
 
-    def weightedpredictions(self, preds):
-        totalpred = self.local_weights * preds
+    def weightedpredictions(
+        self, preds, rolling=False, repeats=[], evenweight=False
+    ):
+        if not rolling:
+            totalpred = self.local_weights * preds
+        else:
+            weights = np.repeat(self.local_weights, repeats, axis=0)
+            totalpred = weights * preds
         return totalpred
 
     def fit(self, x, y, rolling=False):
+        if rolling:
+            repeats = np.repeat(
+                [(len(i) - self.testsize) for i in x], self.testsize
+            )
+            y = rolling_output(x, self.testsize)
+        else:
+            repeats = []
         preds = self.localpredictions(x, rolling)
-        totalpred = self.weightedpredictions(preds)
+        x = self.weightedpredictions(preds, rolling, repeats)
         y = np.array(y).reshape(-1, 1)
         self.model.fit(x, y)
 
     def predict(self, values):
         x = np.array(last_values(values, timesteps=self.testsize))
-        preds = self.localpredictions(x)
-        totalpred = self.weightedpredictions(preds)
-
-        x = totalpred.reshape(
-            totalpred.shape[0] * totalpred.shape[1], totalpred.shape[2]
-        )
+        x = self.localpredictions(x)
+        x = self.weightedpredictions(x)
         return self.model.predict(x)
 
 
@@ -85,7 +94,7 @@ class WeightedSum:
         self.y = y
 
     def predict(self, values):
-        return self.x.sum(axis=1)
+        return values.sum(axis=1)
 
 
 class MultiXgboost(MultiOutputRegressor):

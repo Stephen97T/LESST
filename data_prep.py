@@ -82,6 +82,14 @@ def rolling_window(ytrain, timesteps):
     return last
 
 
+def rolling_output(youtput, timesteps):
+    last = []
+    for data in youtput:
+        for dat in range(0, (len(data) - timesteps)):
+            last.append(data[dat : timesteps + dat])
+    return last
+
+
 def prepare_inputoutput(
     df, testsize, freq, deseason=True, split=True, start=True
 ):
