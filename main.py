@@ -10,10 +10,38 @@ from LESST import LESST
 from benchmark import BenchmarkModel, PerformanceMeasures
 from tsforecast import ThetaF
 import numpy as np
-from data_prep import to_array
+from data_prep import to_array, last_values
 from preprocessing import read_m4test_series, read_m4_series
 from time import time
 import pickle
+
+
+def local_results(less, dataset, res_train, res_test, predictions, deseason):
+    local = less.LocalM
+    clusters = less.df.cluster
+    train = less.val
+    localpred = []
+    inputs = np.array(last_values(train, timesteps=less.steps))
+    for i, y in enumerate(inputs):
+        cluster = clusters[i]
+        predic = local.predict(y.reshape(1, -1), cluster=cluster)
+        localpred.append(predic)
+    localpred = np.array(localpred).reshape(predictions.shape)
+    if deseason:
+        preds = []
+        for i in range(0, len(less.seas)):
+            preds.append(less.seas[i].reseasonalize_pred(localpred[i]))
+        localpred = np.array(preds)
+
+    local_owa, local_smape, local_mase, local_rmse, = performance_LESST(
+        localpred,
+        dataset,
+        res_train,
+        res_test,
+        less.steps,
+        less.freq,
+    )
+    return local_owa, local_smape, local_mase, local_rmse
 
 
 def run_LESST(
@@ -26,6 +54,7 @@ def run_LESST(
     globalmodel,
     deseason,
     rolling=False,
+    evenweighted=False,
 ):
     less = LESST(
         dataset,
@@ -36,6 +65,7 @@ def run_LESST(
         split=True,
         start=True,
         rolling=rolling,
+        evenweight=evenweighted,
     )
     less.fit(
         prediction_steps=horizon,
@@ -103,15 +133,6 @@ def results_LESST(
                         globalmodel,
                         deseason,
                     )
-                    with open(
-                        f"E:/documents/work/thesis/LESSMODEL_ncl_{n_cluster}_lm_{localmodelname}_gm_{globalmodelname}_ds_{deseason}.pkl",
-                        "wb",
-                    ) as handle:
-                        pickle.dump(
-                            less,
-                            handle,
-                            protocol=pickle.HIGHEST_PROTOCOL,
-                        )
                     t = time()
                     (
                         lesst_owa,

@@ -47,17 +47,17 @@ localmodels = [
     models["huber"],
 ]
 globalmodels = [
-    models["huber"],
-    models["huber"],
-    models["huber"],
-    models["rf"],
-    models["huber"],
-    models["rf"],
+    WeightedSum(),
+    WeightedSum(),
+    WeightedSum(),
+    WeightedSum(),
+    WeightedSum(),
+    WeightedSum(),
 ]
-local_owas = {}
-local_smapes = {}
-local_rmses = {}
-local_mases = {}
+lesst_owas = {}
+lesst_smapes = {}
+lesst_rmses = {}
+lesst_mases = {}
 for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
     datasets, frequencys, n_clusters, deseasons, localmodels, globalmodels
 ):
@@ -76,8 +76,8 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         globalmodel,
         deseason,
         rolling=False,
+        evenweighted=False
     )
-    """
     lesst_owa, lesst_smape, lesst_mase, lesst_rmse = performance_LESST(
         predictions,
         dataset,
@@ -86,22 +86,9 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         horizon,
         frequency,
     )
-    """
+    lesst_owas.update({f"{dataset}": lesst_owa})
+    lesst_smapes.update({f"{dataset}": lesst_smape})
+    lesst_mases.update({f"{dataset}": lesst_mase})
+    lesst_rmses.update({f"{dataset}": lesst_rmse})
 
-    local_owa, local_smape, local_mase, local_rmse = local_results(
-        less, dataset, res_train, res_test, predictions, deseason
-    )
-    local_owas.update({f"{dataset}": local_owa})
-    local_smapes.update({f"{dataset}": local_smape})
-    local_mases.update({f"{dataset}": local_mase})
-    local_rmses.update({f"{dataset}": local_rmse})
-"""
-(benchmark_owa, benchmark_smape, benchmark_mase, benchmark_rmse,) = benchmark(
-    predictions,
-    dataset,
-    res_train,
-    res_test,
-    horizon,
-    frequency,
-)
 """

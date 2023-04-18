@@ -30,10 +30,11 @@ c = {"3 "}
 with (open(f"{path}/lesst_Hourly_ds_False.pkl", "rb")) as openfile:
     season = pickle.load(openfile)
 
+measure = "SMAPE"
 
 df = {}
 for dataset in season:
-    if "OWA" in dataset:
+    if measure in dataset:
         dset = dataset.replace("ds:", "")
         tabel = {
             "3 clusters": {},
@@ -50,14 +51,16 @@ for dataset in season:
             tabel[key].update({rname: value})
         tabel = pd.DataFrame(tabel)
         df.update({dset: tabel})
-        tabel.to_excel(f"E:/documents/work/thesis/LESST_{dset}_Seasonal.xlsx")
+        tabel.to_excel(
+            f"E:/documents/work/thesis/LESST_{dset}_{measure}_Seasonal.xlsx"
+        )
 
 with (open(f"{path}/lesst_Hourly_ds_True.pkl", "rb")) as openfile:
     deseason = pickle.load(openfile)
 
 dfs = {}
 for dataset in deseason:
-    if "OWA" in dataset:
+    if measure in dataset:
         dset = dataset.replace("ds:", "")
         tabel = {
             "3 clusters": {},
@@ -74,4 +77,4 @@ for dataset in deseason:
             tabel[key].update({rname: value})
         tabel = pd.DataFrame(tabel)
         dfs.update({dset: tabel})
-        tabel.to_excel(f"E:/documents/work/thesis/LESST_{dset}.xlsx")
+        tabel.to_excel(f"E:/documents/work/thesis/LESST_{dset}_{measure}.xlsx")

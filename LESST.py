@@ -20,6 +20,7 @@ class LESST:
         split=True,
         start=True,
         rolling=False,
+        evenweight=False,
     ):
         self.n_clusters = n_clusters
         self.feats = read_tsfeatures(dataset).reset_index(drop=True)
@@ -29,6 +30,7 @@ class LESST:
         self.split = split
         self.start = start
         self.rolling = rolling
+        self.evenweight = evenweight
 
     def fit(
         self,
@@ -76,12 +78,17 @@ class LESST:
             local_weights,
             model=globalmodel,
         )
-        self.Gmodel.fit(self.train, self.val, self.rolling)
+        self.Gmodel.fit(
+            self.train,
+            self.val,
+            self.rolling,
+            self.evenweight,
+        )
         print(f"global model part took {time()-tt} sec")
         print(f"total running time {time()-t} sec")
 
     def predict(self):
-        predictions = self.Gmodel.predict(self.val)
+        predictions = self.Gmodel.predict(self.val, self.evenweight)
         if self.deseason:
             preds = []
             for i in range(0, int(len(predictions) / self.steps)):
