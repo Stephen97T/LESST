@@ -33,8 +33,8 @@ datasets = [
     "Weekly",
     "Daily",
     "Hourly",
-]  # , "Monthly", "Weekly", "Daily", "Hourly"]
-frequencys = [1, 4, 12, 52, 7, 24]  # , 12, 52, 7, 24]
+]
+frequencys = [1, 4, 12, 52, 7, 24]
 n_clusters = [100, 3, 3, 30, 30, 100]
 deseasons = [False, True, False, True, False, True]
 
@@ -76,7 +76,7 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         globalmodel,
         deseason,
         rolling=False,
-        evenweighted=False
+        evenweighted=False,
     )
     lesst_owa, lesst_smape, lesst_mase, lesst_rmse = performance_LESST(
         predictions,
@@ -90,5 +90,3 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
     lesst_smapes.update({f"{dataset}": lesst_smape})
     lesst_mases.update({f"{dataset}": lesst_mase})
     lesst_rmses.update({f"{dataset}": lesst_rmse})
-
-"""

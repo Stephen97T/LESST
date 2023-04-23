@@ -60,17 +60,19 @@ class GlobalModel:
     ):
         if not rolling:
             if not evenweight:
-                totalpred = self.local_weights * preds
+                preds = self.local_weights * preds
             else:
-                totalpred = (
+                preds = (
                     np.ones(self.local_weights.shape)
                     / self.local_weights.shape[1]
                     * preds
                 )
         else:
             weights = np.repeat(self.local_weights, repeats, axis=0)
-            totalpred = weights * preds
-        return totalpred
+            preds = weights * preds
+            del weights
+            del repeats
+        return preds
 
     def fit(self, x, y, rolling=False, evenweight=False):
         if rolling:
@@ -84,6 +86,8 @@ class GlobalModel:
         x = self.weightedpredictions(preds, rolling, repeats, evenweight)
         y = np.array(y).reshape(-1, 1)
         self.model.fit(x, y)
+        del x
+        del y
 
     def predict(self, values, evenweight=False):
         x = np.array(last_values(values, timesteps=self.testsize))

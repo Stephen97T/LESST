@@ -11,6 +11,7 @@ from preprocessing import read_m4test_series, read_m4_series
 from data_prep import last_values
 import numpy as np
 from models import WeightedSum
+import pickle
 
 np.seed = 1
 
@@ -33,10 +34,10 @@ datasets = [
     "Weekly",
     "Daily",
     "Hourly",
-]  # , "Monthly", "Weekly", "Daily", "Hourly"]
-frequencys = [1, 4, 12, 52, 7, 24]  # , 12, 52, 7, 24]
+]
+frequencys = [1, 4, 12, 52, 7, 24]
 n_clusters = [100, 3, 3, 30, 30, 100]
-deseasons = [False, True, False, True, False, True]
+deseasons = [False, True]
 
 localmodels = [
     models["huber"],
@@ -52,7 +53,7 @@ globalmodels = [
     models["huber"],
     models["rf"],
     models["huber"],
-    models["rf"],
+    models["huber"],
 ]
 lesst_owas = {}
 lesst_smapes = {}
@@ -77,6 +78,7 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         deseason,
         rolling=True,
     )
+    del less
     lesst_owa, lesst_smape, lesst_mase, lesst_rmse = performance_LESST(
         predictions,
         dataset,
@@ -89,3 +91,20 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
     lesst_smapes.update({f"{dataset}": lesst_smape})
     lesst_mases.update({f"{dataset}": lesst_mase})
     lesst_rmses.update({f"{dataset}": lesst_rmse})
+    with open(
+        f"E:/documents/work/thesis/rolling_{dataset}.pkl",
+        "wb",
+    ) as handle:
+        pickle.dump(
+            {
+                "owa": lesst_owas,
+                "smape": lesst_smapes,
+                "mase": lesst_mases,
+                "rmse": lesst_rmses,
+            },
+            handle,
+            protocol=pickle.HIGHEST_PROTOCOL,
+        )
+    print("=====================================================")
+    print(f"{dataset} is DONE")
+    print("=====================================================")
