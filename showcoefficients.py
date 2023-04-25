@@ -3,6 +3,7 @@ from main import run_LESST
 from data_prep import to_array
 from preprocessing import read_m4test_series, read_m4_series
 import numpy as np
+import pandas as pd
 
 np.seed = 1
 
@@ -48,6 +49,12 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         rolling=False,
     )
     model_coef.update({dataset: list(less.Gmodel.model.coef_)})
+    df = pd.DataFrame(model_coef)
+    df.plot.box(
+        color="darkred",
+        title="Coefficients of the Huber Global Model",
+        figsize=(9, 5),
+    )
 
     print("=====================================================")
     print(f"{dataset} is DONE")

@@ -1,14 +1,15 @@
 import numpy as np
 from numpy.random import seed
-
-seed(1)
-
 import pandas as pd
 from math import sqrt
+
+seed(1)
 
 
 ########################
 # UTILITY MODELS
+# most functions that are implemented in this script come from this source
+# https://github.com/AlexDowney/ESRNN_fork/blob/37ad9e12f9b650867b5e1ab6afada6fcd5da522a/ESRNN/utils_evaluation.py
 ########################
 
 
