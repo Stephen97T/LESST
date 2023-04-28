@@ -1,14 +1,16 @@
+"""This file contains functions for deseasonalization and the NAIVE models"""
 import numpy as np
 from numpy.random import seed
-
-seed(1)
-
 import pandas as pd
 from math import sqrt
+
+seed(1)
 
 
 ########################
 # UTILITY MODELS
+# most functions that are implemented in this script come from this source
+# https://github.com/AlexDowney/ESRNN_fork/blob/37ad9e12f9b650867b5e1ab6afada6fcd5da522a/ESRNN/utils_evaluation.py
 ########################
 
 
@@ -175,6 +177,7 @@ class Naive2:
 
     def __init__(self, seasonality):
         self.seasonality = seasonality
+        seed(1)
 
     def fit(self, ts_init):
         seasonality_in = deseasonalize(ts_init, ppy=self.seasonality)
@@ -202,6 +205,7 @@ class Seasonality:
         self.freq = freq
 
     def deseasonalize_serie(self, serie):
+        """Deseasonalize series"""
         seasonality_in = deseasonalize(serie, ppy=self.freq)
         windows = int(np.ceil(len(serie) / self.freq))
         self.s_hat = np.tile(seasonality_in, reps=windows)[: len(serie)]
@@ -209,9 +213,11 @@ class Seasonality:
         return ts_des
 
     def reseasonalize_serie(self, serie):
+        """Reseasonalize series"""
         return serie * self.s_hat
 
     def reseasonalize_pred(self, pred):
+        """Reseasonalize predictions"""
         horizon = len(pred)
         s_hat = (
             SeasonalNaive()
@@ -219,4 +225,5 @@ class Seasonality:
             .predict(horizon)
         )
         y_hat = s_hat * pred
+        # y_hat = pred * self.s_hat[-horizon:]
         return y_hat

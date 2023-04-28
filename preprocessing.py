@@ -1,15 +1,19 @@
+"""File contains functions for formatting and reading m4data and timeseries features"""
 import os
 from time import time
 
-os.environ["R_HOME"] = "/Users/steph/miniconda3/envs/bay/lib/R"
+# VERY IMPORTANT: Set you R module for the conda environment (work is the environment here)
+os.environ["R_HOME"] = "E:/documents/work/mini/envs/work/lib/R"
 from typing import List
 from tsfeatures.tsfeatures_r import tsfeatures_r
 import pandas as pd
 from rpy2.robjects.packages import importr, data
 
+"""MUST INSTALL these R libraries for running the first time"""
 # utils = importr("utils")
 # utils.install_packages("data.table")
 # utils.install_packages("tsfeatures")
+# utils.install_packages("forecast")
 from tsfeatures.tsfeatures_r import tsfeatures_r
 from tsfeatures.tsfeatures import tsfeatures
 from tsfeatures.m4_data import *
@@ -24,8 +28,10 @@ from tsfeatures.m4_data import *
 
 
 def prepare_allm4data(
-    outputfolder="C:/thesis/data/m4/processed", datapath="C:/thesis/data/"
+    outputfolder="E:/documents/work/thesis/data/m4/processed",
+    datapath="E:/documents/work/thesis/data",
 ):
+    """Prepares m4 data for calculating the features"""
     datasets = ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
     for dset in datasets:
         xtrain, ytrain, xtest, ytest = m4_parser(dset, datapath)
@@ -37,13 +43,11 @@ def prepare_allm4data(
 
 def prepare_m4tsfeatures(
     filename="features_train_val",
-    outputfolder="C:/thesis/data/m4/processed/tsfeatures",
-    datapath="C:/thesis/data/m4/processed/train",
+    outputfolder="E:/documents/work/thesis/data/m4/processed/tsfeatures",
+    datapath="E:/documents/work/thesis/data/m4/processed/train",
 ):
-    datasets = [
-        "Quarterly",
-        "Yearly",
-    ]  # ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
+    """Calculates the features for all datasets and saves them"""
+    datasets = ["Hourly", "Daily", "Weekly", "Monthly", "Quarterly", "Yearly"]
     for dset in datasets:
         y = pd.read_csv(f"{datapath}/ytrain-{dset.lower()}.csv", index_col=0)
         features = tsfeatures_r(y, freq=1)
@@ -53,15 +57,21 @@ def prepare_m4tsfeatures(
 
 
 def read_m4_df(
-    dataset, train_test="train", datapath="C:/thesis/data/m4/processed/"
+    dataset,
+    train_test="train",
+    datapath="E:/documents/work/thesis/data/m4/processed/",
 ):
+    """Reads m4 transformed data (used for timeseries features)"""
     df = pd.read_csv(
         f"{datapath}/{train_test}/ytrain-{dataset}.csv", index_col=0
     )
     return df
 
 
-def read_m4_series(dataset, train_test="Train", datapath="C:/thesis/data/m4"):
+def read_m4_series(
+    dataset, train_test="Train", datapath="E:/documents/work/thesis/data/m4"
+):
+    """Reads the normal m4 data (much faster)"""
     df = pd.read_csv(
         f"{datapath}/{train_test}/{dataset}-{train_test.lower()}.csv",
         index_col=0,
@@ -70,8 +80,9 @@ def read_m4_series(dataset, train_test="Train", datapath="C:/thesis/data/m4"):
 
 
 def read_m4test_series(
-    dataset, train_test="Test", datapath="C:/thesis/data/m4"
+    dataset, train_test="Test", datapath="E:/documents/work/thesis/data/m4"
 ):
+    """Reads the normal m4 test data"""
     df = pd.read_csv(
         f"{datapath}/{train_test}/{dataset}-{train_test.lower()}.csv",
         index_col=0,
@@ -79,7 +90,10 @@ def read_m4test_series(
     return df
 
 
-def read_tsfeatures(dataset, datapath="C:/thesis/data/m4/processed/"):
+def read_tsfeatures(
+    dataset, datapath="E:/documents/work/thesis/data/m4/processed/"
+):
+    """Reads the saved timeseries features previously calculated"""
     df = pd.read_csv(
         f"{datapath}/tsfeatures/features_train_val-{dataset}.csv", index_col=0
     )
