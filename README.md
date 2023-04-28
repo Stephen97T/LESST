@@ -9,10 +9,10 @@ Follow these steps if running the code for the first time:
 
 * Install R
 * Install all required python libraries in the requirements.txt into the python environment
-* Change the path in $os.environ["R\_HOME"] = "E:/documents/work/mini/envs/work/lib/R"$ in the preprocessing.py and tsforecast.py files to the path of your python environment
+* Change the path in os.environ["R_HOME"] = "E:/documents/work/mini/envs/work/lib/R" in the preprocessing.py and tsforecast.py files to the path of your python environment
 * Uncomment the R library installations in the preprocessing file
-* Run the prepare\_allm4data function in the preprocessing.py file
-* Run the prepare\_m4tsfeatures function in the preprocessing.py file for calculating all the timeseries features of all dataset and saving them
+* Run the prepare_allm4data function in the preprocessing.py file
+* Run the prepare_m4tsfeatures function in the preprocessing.py file for calculating all the timeseries features of all dataset and saving them
 * Comment the R library installations in the preprocessing file again
 
 For obtaining the results run theses files:
@@ -35,5 +35,5 @@ Here are details on what the other files contain:
 * clustering.py: contains the timeseries feature clustering method
 * seasonality: contains functions for deseasonalizing the data
 * tsforecasts.py: contains the ThetaF model and other R forecasting models
-* data\_prep.py: contains functions for preparing input and target data
+* data_prep.py: contains functions for preparing input and target data
 * preprocessing: contains functions for calculating timeseries features and reading m4 data
