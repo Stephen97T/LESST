@@ -1,3 +1,4 @@
+"""This file produces the main results of the LESST model"""
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import (
     LinearRegression,
@@ -22,6 +23,7 @@ models = {
     "gradient": GradientBoostingRegressor(),
 }
 
+# Initiate parameters
 datasets = ["Yearly", "Quarterly", "Monthly", "Weekly", "Daily", "Hourly"]
 frequencies = [1, 4, 12, 52, 7, 24]
 n_clusters = clusters = [3, 10, 30, 50, 100]
@@ -35,6 +37,8 @@ localmodels = [
     "lgbm",
 ]
 globalmodels = ["ols", "huber", "xgb", "lgbm", "rf", "huber"]
+
+# Run and evaluate LESST and Benchmark deseasonalized
 benchds, lessds = results_LESST(
     datasets,
     n_clusters,
@@ -45,6 +49,7 @@ benchds, lessds = results_LESST(
     deseason=True,
 )
 
+# Run and evaluate LESST and Benchmark non-deseasonalized
 bench, less = results_LESST(
     datasets,
     n_clusters,

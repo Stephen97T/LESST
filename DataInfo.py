@@ -1,24 +1,9 @@
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.linear_model import (
-    LinearRegression,
-    HuberRegressor,
-)
-from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor
-from main import run_LESST, performance_LESST, benchmark, local_results
+"""This file generates information about the dataset for each set"""
 from data_prep import to_array
 from preprocessing import read_m4test_series, read_m4_series
-from data_prep import last_values
 import numpy as np
-from models import WeightedSum
-import pickle
 
 np.seed = 1
-
-# models to consider
-models = {
-    "huber": HuberRegressor(),
-}
 
 datasets = [
     "Yearly",
@@ -36,11 +21,17 @@ for dataset in datasets:
     train = read_m4_series(dataset)
     res_train = to_array(train)
     res_test = to_array(test)
+
+    # Determine the forecasting horizon for each dataset
     test_size.update({dataset: test.shape[1]})
     count = 0
     for i in res_train:
         count += len(i)
+
+    # Determine the total series length for the dataset
     total_length_timeseries.update({dataset: count})
+
+    # Determine average series length for the dataset
     avg_length_timeseries.update({dataset: count / len(res_test)})
 
     print("=====================================================")

@@ -1,3 +1,4 @@
+"""This file contains functions for deseasonalization and the NAIVE models"""
 import numpy as np
 from numpy.random import seed
 import pandas as pd
@@ -204,6 +205,7 @@ class Seasonality:
         self.freq = freq
 
     def deseasonalize_serie(self, serie):
+        """Deseasonalize series"""
         seasonality_in = deseasonalize(serie, ppy=self.freq)
         windows = int(np.ceil(len(serie) / self.freq))
         self.s_hat = np.tile(seasonality_in, reps=windows)[: len(serie)]
@@ -211,9 +213,11 @@ class Seasonality:
         return ts_des
 
     def reseasonalize_serie(self, serie):
+        """Reseasonalize series"""
         return serie * self.s_hat
 
     def reseasonalize_pred(self, pred):
+        """Reseasonalize predictions"""
         horizon = len(pred)
         s_hat = (
             SeasonalNaive()

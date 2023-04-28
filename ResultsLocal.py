@@ -1,3 +1,4 @@
+"""This file produces results for the Local Models"""
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.linear_model import (
     LinearRegression,
@@ -5,12 +6,10 @@ from sklearn.linear_model import (
 )
 from xgboost import XGBRegressor
 from lightgbm import LGBMRegressor
-from main import run_LESST, performance_LESST, benchmark, local_results
+from main import run_LESST, local_results
 from data_prep import to_array
 from preprocessing import read_m4test_series, read_m4_series
-from data_prep import last_values
 import numpy as np
-from models import WeightedSum
 
 np.seed = 1
 
@@ -33,8 +32,10 @@ datasets = [
     "Weekly",
     "Daily",
     "Hourly",
-]  # , "Monthly", "Weekly", "Daily", "Hourly"]
-frequencys = [1, 4, 12, 52, 7, 24]  # , 12, 52, 7, 24]
+]
+
+# Define the parameters used for the best LESST models
+frequencys = [1, 4, 12, 52, 7, 24]
 n_clusters = [100, 3, 3, 30, 30, 100]
 deseasons = [False, True, False, True, False, True]
 
@@ -61,11 +62,14 @@ local_mases = {}
 for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
     datasets, frequencys, n_clusters, deseasons, localmodels, globalmodels
 ):
+    # Initialize data
     test = read_m4test_series(dataset)
     train = read_m4_series(dataset)
     res_train = to_array(train)
     res_test = to_array(test)
     horizon = test.shape[1]
+
+    # Train LESST
     predictions, less = run_LESST(
         dataset,
         train,
@@ -77,17 +81,8 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
         deseason,
         rolling=False,
     )
-    """
-    lesst_owa, lesst_smape, lesst_mase, lesst_rmse = performance_LESST(
-        predictions,
-        dataset,
-        res_train,
-        res_test,
-        horizon,
-        frequency,
-    )
-    """
 
+    # Use LESST Local Models to calculate Local performance
     local_owa, local_smape, local_mase, local_rmse = local_results(
         less, dataset, res_train, res_test, predictions, deseason
     )
@@ -95,13 +90,3 @@ for dataset, frequency, n_cluster, deseason, localmodel, globalmodel in zip(
     local_smapes.update({f"{dataset}": local_smape})
     local_mases.update({f"{dataset}": local_mase})
     local_rmses.update({f"{dataset}": local_rmse})
-"""
-(benchmark_owa, benchmark_smape, benchmark_mase, benchmark_rmse,) = benchmark(
-    predictions,
-    dataset,
-    res_train,
-    res_test,
-    horizon,
-    frequency,
-)
-"""

@@ -1,3 +1,4 @@
+"""Generates the figure of coefficients in the Global Model for all datasets"""
 from sklearn.linear_model import HuberRegressor
 from main import run_LESST
 from data_prep import to_array

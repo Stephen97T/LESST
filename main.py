@@ -1,11 +1,9 @@
-from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
-from sklearn.linear_model import (
-    LinearRegression,
-    HuberRegressor,
-)
-from xgboost import XGBRegressor
-from lightgbm import LGBMRegressor
-from models import WeightedSum
+"""This file contians functions for running the main results,
+contains functions for:
+-Running LESST Model for all datasets and multiple parameters
+-Calculating performance measures for this model
+-Calculating benchmark performance
+-Calculating Local Model performance"""
 from LESST import LESST
 from benchmark import BenchmarkModel, PerformanceMeasures
 from tsforecast import ThetaF
@@ -17,6 +15,7 @@ import pickle
 
 
 def local_results(less, dataset, res_train, res_test, predictions, deseason):
+    """Calculates the results for the local models"""
     local = less.LocalM
     clusters = less.df.cluster
     train = less.val
@@ -56,6 +55,7 @@ def run_LESST(
     rolling=False,
     evenweighted=False,
 ):
+    """Runs and makes predictions for the LESST Model"""
     less = LESST(
         dataset,
         train,
@@ -78,6 +78,7 @@ def run_LESST(
 
 
 def performance_LESST(predictions, dataset, train, test, horizon, frequency):
+    """Calculates the performance of the LESST model"""
     measure = PerformanceMeasures(frequency)
     lesst_owa, lesst_smape, lesst_mase, lesst_rmse = measure.OWA(
         test, predictions, train
@@ -86,6 +87,7 @@ def performance_LESST(predictions, dataset, train, test, horizon, frequency):
 
 
 def benchmark(predictions, dataset, train, test, horizon, frequency):
+    """Calculates benchmark performance using the Theta model"""
     benchmark = BenchmarkModel(ThetaF(frequency))
     bench_owa, bench_smape, bench_mase, bench_rmse = benchmark.performance(
         test, train, horizon, frequency
@@ -103,9 +105,13 @@ def results_LESST(
     deseason,
     check_benchmark=True,
 ):
+    """Creates our main results, muliple LESST models can be trained and evaluated
+    with this function"""
     total_lesst_owas = {}
     total_benchmark_owas = {}
     for instance, dataset in enumerate(datasets):
+
+        # Initiate dataset
         test = read_m4test_series(dataset)
         train = read_m4_series(dataset)
         res_train = to_array(train)
@@ -123,6 +129,8 @@ def results_LESST(
                 try:
                     localmodel = models[localmodelname]
                     globalmodel = models[globalmodelname]
+
+                    # Fit and predict with LESST model
                     predictions, less = run_LESST(
                         dataset,
                         train,
@@ -134,6 +142,8 @@ def results_LESST(
                         deseason,
                     )
                     t = time()
+
+                    # Calculate performance
                     (
                         lesst_owa,
                         lesst_smape,
@@ -175,6 +185,8 @@ def results_LESST(
                     continue
 
         try:
+
+            # Save Performance Measure results
             total_lesst_owas.update({f"ds:{dataset}_OWA": lesst_owas})
             total_lesst_owas.update({f"ds:{dataset}_SMAPE": lesst_smapes})
             total_lesst_owas.update({f"ds:{dataset}_MASE": lesst_mases})
@@ -186,6 +198,8 @@ def results_LESST(
                 pickle.dump(
                     total_lesst_owas, handle, protocol=pickle.HIGHEST_PROTOCOL
                 )
+
+            # Calculate benchmark performance
             if check_benchmark:
                 t = time()
                 (

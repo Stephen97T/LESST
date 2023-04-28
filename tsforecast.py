@@ -1,5 +1,7 @@
+"""This file contains models of the forecasting R package but in python"""
 import os
 
+# IMPORTANT MUST SET R module path to environment see preprocessing.py
 os.environ["R_HOME"] = "E:/documents/work/mini/envs/work/lib/R"
 import pandas as pd
 from copy import deepcopy
@@ -12,6 +14,7 @@ import rpy2.robjects as robjects
 
 
 forecast = importr("forecast")
+"""Source of methods: https://github.com/christophmark/fforma/blob/master/fforma/r_models.py"""
 
 
 def forecast_object_to_dict(forecast_object):

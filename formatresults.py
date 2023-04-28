@@ -1,8 +1,13 @@
+"""This file contains some functions for creating dataframes
+from the dictionaries created and saved in a pickle
+for the main results"""
 import pickle
 import pandas as pd
 
+# Set path that contains the result pkl files
 path = "E:/documents/work/thesis"
 
+# Create dataframe for the benchmark results
 with (open(f"{path}/benchmark_Hourly_ds_False.pkl", "rb")) as openfile:
     benchmark = pickle.load(openfile)
 
@@ -26,7 +31,7 @@ benchmark = pd.DataFrame(
 benchmark.to_excel(f"{path}/benchmark.xlsx")
 
 
-c = {"3 "}
+# Create dataframes for the non-deseasonalized results
 with (open(f"{path}/lesst_Hourly_ds_False.pkl", "rb")) as openfile:
     season = pickle.load(openfile)
 
@@ -55,6 +60,7 @@ for dataset in season:
             f"E:/documents/work/thesis/LESST_{dset}_{measure}_Seasonal.xlsx"
         )
 
+# Create dataframes for the deseasonalized results
 with (open(f"{path}/lesst_Hourly_ds_True.pkl", "rb")) as openfile:
     deseason = pickle.load(openfile)
 
