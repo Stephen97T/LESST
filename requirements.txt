@@ -6,3 +6,4 @@ rpy2
 tsfeatures
 xgboost
 lightgbm
+scipy
