@@ -1,6 +1,6 @@
 # LESST
 Learning with Subset Stacking for Timeseries is a repository that proposes a new forecasting method using Machine-Learning, Cross-Learning, Stacking and Clustering methods.
-The is trained using the M4-competition dataset. The method consists of selecting subsets of the timeseries using K-Means clustering on the Timeseries Features.
+The model is trained using the M4-competition dataset. The method consists of selecting subsets of the timeseries using K-Means clustering on the Timeseries Features.
 For each cluster Local Models are trained using these subsets. These Local Model predictions are weighted using the weights defined by the distance to cluster centers.
 The Global Model combines these weighted Local Model forecasts into one final prediction.
 
